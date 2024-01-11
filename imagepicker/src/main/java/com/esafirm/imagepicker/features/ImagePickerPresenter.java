@@ -53,7 +53,7 @@ class ImagePickerPresenter extends BasePresenter<ImagePickerView> {
         if (!isViewAttached()) return;
 
         boolean isFolder = config.isFolderMode();
-        boolean includeVideo = config.isIncludeVideo();
+        boolean includeVideo = config.isIncludeVideo();//Todo
         boolean onlyVideo = config.isOnlyVideo();
         boolean includeAnimation = config.isIncludeAnimation();
         ArrayList<File> excludedImages = config.getExcludedImages();

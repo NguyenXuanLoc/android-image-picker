@@ -3,6 +3,7 @@
 
     <application>
         <activity
+            android:exported="true"
             android:name="ShadowActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
             android:launchMode="singleTop"

@@ -13,9 +13,11 @@ import android.os.Handler;
 import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -64,6 +66,7 @@ public class ImagePickerFragment extends Fragment implements ImagePickerView {
 
     private RecyclerView recyclerView;
     private SnackBarView snackBarView;
+    private Button buttonOpenSetting;
     private ProgressBar progressBar;
     private TextView emptyTextView;
 
@@ -181,6 +184,13 @@ public class ImagePickerFragment extends Fragment implements ImagePickerView {
         emptyTextView = rootView.findViewById(R.id.tv_empty_images);
         recyclerView = rootView.findViewById(R.id.recyclerView);
         snackBarView = rootView.findViewById(R.id.ef_snackbar);
+        buttonOpenSetting = rootView.findViewById(R.id.buttonOpenSetting);
+        buttonOpenSetting.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openAppSettings();
+            }
+        });
     }
 
     private void setupRecyclerView(ImagePickerConfig config, ArrayList<Image> selectedImages) {
@@ -273,14 +283,24 @@ public class ImagePickerFragment extends Fragment implements ImagePickerView {
      * Check permission
      */
     private void getDataWithPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            getData();
-        } else {
-            int rc = ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
-            if (rc == PackageManager.PERMISSION_GRANTED) {
+        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.S){
+            int rc = ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_MEDIA_IMAGES);
+            int rc1 = ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_MEDIA_VIDEO);
+            if (rc == PackageManager.PERMISSION_GRANTED && rc1 == PackageManager.PERMISSION_GRANTED) {
                 getData();
             } else {
                 requestWriteExternalPermission();
+            }
+        }else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                getData();
+            } else {
+                int rc = ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                if (rc == PackageManager.PERMISSION_GRANTED) {
+                    getData();
+                } else {
+                    requestWriteExternalPermission();
+                }
             }
         }
     }
@@ -299,15 +319,11 @@ public class ImagePickerFragment extends Fragment implements ImagePickerView {
      * If permission denied and user choose 'Never Ask Again', show snackbar with an action that navigate to app settings
      */
     private void requestWriteExternalPermission() {
-        logger.w("Write External permission is not granted. Requesting permission");
-
-        final String[] permissions = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            getData();
-        } else {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            final String[] permissions = new String[]{Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO};
+            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.READ_MEDIA_IMAGES) ||
+                    ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.READ_MEDIA_VIDEO)) {
                 requestPermissions(permissions, RC_PERMISSION_REQUEST_WRITE_EXTERNAL_STORAGE);
-
             } else {
                 final String permission = PREF_WRITE_EXTERNAL_STORAGE_REQUESTED;
                 if (!preferences.isPermissionRequested(permission)) {
@@ -315,11 +331,32 @@ public class ImagePickerFragment extends Fragment implements ImagePickerView {
 
                     requestPermissions(permissions, RC_PERMISSION_REQUEST_WRITE_EXTERNAL_STORAGE);
                 } else {
+                    buttonOpenSetting.setVisibility(View.VISIBLE);
                     snackBarView.show(R.string.ef_msg_no_write_external_permission, v -> openAppSettings());
                 }
             }
         }
+        else { //Android<13
+            final String[] permissions = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                getData();
+            } else {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                    requestPermissions(permissions, RC_PERMISSION_REQUEST_WRITE_EXTERNAL_STORAGE);
 
+                } else {
+                    final String permission = PREF_WRITE_EXTERNAL_STORAGE_REQUESTED;
+                    if (!preferences.isPermissionRequested(permission)) {
+                        preferences.setPermissionRequested(permission);
+
+                        requestPermissions(permissions, RC_PERMISSION_REQUEST_WRITE_EXTERNAL_STORAGE);
+                    } else {
+                        buttonOpenSetting.setVisibility(View.VISIBLE);
+                        snackBarView.show(R.string.ef_msg_no_write_external_permission, v -> openAppSettings());
+                    }
+                }
+            }
+        }
     }
 
     private void requestCameraPermissions(boolean isPhoto) {
@@ -347,6 +384,7 @@ public class ImagePickerFragment extends Fragment implements ImagePickerView {
                             getString(R.string.ef_msg_no_camera_permission), Toast.LENGTH_SHORT).show();
                     interactionListener.cancel();
                 } else {
+                    buttonOpenSetting.setVisibility(View.VISIBLE);
                     snackBarView.show(R.string.ef_msg_no_camera_permission, v -> openAppSettings());
                 }
             }
@@ -444,8 +482,16 @@ public class ImagePickerFragment extends Fragment implements ImagePickerView {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             final boolean isCameraGranted = ActivityCompat
                     .checkSelfPermission(getActivity(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
-            final boolean isWriteGranted = ActivityCompat
-                    .checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+             boolean isWriteGranted =false;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                isWriteGranted = ActivityCompat
+                        .checkSelfPermission(getActivity(), Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED ||
+                        ActivityCompat
+                                .checkSelfPermission(getActivity(), Manifest.permission.READ_MEDIA_VIDEO) == PackageManager.PERMISSION_GRANTED;
+            } else {
+                isWriteGranted = ActivityCompat
+                        .checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+            }
             if (isCameraGranted && isWriteGranted) {
                 captureImage(isPhoto);
             } else {
@@ -558,6 +604,7 @@ public class ImagePickerFragment extends Fragment implements ImagePickerView {
 
     @Override
     public void showFetchCompleted(List<Image> images, List<Folder> folders) {
+        buttonOpenSetting.setVisibility(View.GONE);
         ImagePickerConfig config = getImagePickerConfig();
         if (config != null && config.isFolderMode()) {
             setFolderAdapter(folders);
