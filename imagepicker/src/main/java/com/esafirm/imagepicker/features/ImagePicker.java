@@ -3,6 +3,7 @@ package com.esafirm.imagepicker.features;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
@@ -114,6 +115,11 @@ public abstract class ImagePicker {
 
     public ImagePicker showCamera(boolean show) {
         config.setShowCamera(show);
+        return this;
+    }
+
+    public ImagePicker setShowRecordVideo(boolean show) {
+        config.setShowRecordVideo(show);
         return this;
     }
 

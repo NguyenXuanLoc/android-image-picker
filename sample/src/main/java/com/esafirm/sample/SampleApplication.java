@@ -2,7 +2,7 @@ package com.esafirm.sample;
 
 import android.app.Application;
 
-import leakcanary.LeakCanary;
+//import leakcanary.LeakCanary;
 
 
 public class SampleApplication extends Application {

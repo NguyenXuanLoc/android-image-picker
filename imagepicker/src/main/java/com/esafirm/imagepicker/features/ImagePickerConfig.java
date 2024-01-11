@@ -34,6 +34,7 @@ public class ImagePickerConfig extends BaseConfig implements Parcelable {
     private boolean onlyVideo;
     private boolean includeAnimation;
     private boolean showCamera;
+    private boolean showRecordVideo;
 
     private transient String language;
 
@@ -70,6 +71,14 @@ public class ImagePickerConfig extends BaseConfig implements Parcelable {
 
     public void setShowCamera(boolean showCamera) {
         this.showCamera = showCamera;
+    }
+
+    public boolean isShowRecordVideo() {
+        return showRecordVideo;
+    }
+
+    public void setShowRecordVideo(boolean showRecordVideo) {
+        this.showRecordVideo = showRecordVideo;
     }
 
     public boolean isIncludeVideo() {
@@ -202,6 +211,7 @@ public class ImagePickerConfig extends BaseConfig implements Parcelable {
         dest.writeByte(this.onlyVideo ? (byte) 1 : (byte) 0);
         dest.writeByte(this.includeAnimation ? (byte) 1 : (byte) 0);
         dest.writeByte(this.showCamera ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.showRecordVideo ? (byte) 1 : (byte) 0);
     }
 
     protected ImagePickerConfig(Parcel in) {
@@ -226,6 +236,7 @@ public class ImagePickerConfig extends BaseConfig implements Parcelable {
         this.onlyVideo = in.readByte() != 0;
         this.includeAnimation = in.readByte() != 0;
         this.showCamera = in.readByte() != 0;
+        this.showRecordVideo = in.readByte() != 0;
     }
 
     public static final Creator<ImagePickerConfig> CREATOR = new Creator<ImagePickerConfig>() {

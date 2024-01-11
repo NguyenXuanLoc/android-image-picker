@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
@@ -93,9 +94,16 @@ public class ImagePickerActivity extends AppCompatActivity implements ImagePicke
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem menuCamera = menu.findItem(R.id.menu_camera);
+        MenuItem menuVideoCamera = menu.findItem(R.id.menu_video_camera);
         if (menuCamera != null) {
             if (config != null) {
                 menuCamera.setVisible(config.isShowCamera());
+            }
+        }
+        Log.e("TAG", "onPrepareOptionsMenu: " + String.valueOf(config.isShowRecordVideo()));
+        if (menuVideoCamera != null) {
+            if (config != null) {
+                menuVideoCamera.setVisible(config.isShowRecordVideo());
             }
         }
 

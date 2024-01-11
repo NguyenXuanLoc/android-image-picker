@@ -20,6 +20,7 @@ public class ImagePickerConfigFactory {
         config.setMode(IpCons.MODE_MULTIPLE);
         config.setLimit(IpCons.MAX_LIMIT);
         config.setShowCamera(true);
+        config.setShowRecordVideo(true);
         config.setFolderMode(false);
         config.setSelectedImages(new ArrayList<>());
         config.setSavePath(ImagePickerSavePath.DEFAULT);

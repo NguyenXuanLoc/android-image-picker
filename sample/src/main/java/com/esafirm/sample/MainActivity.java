@@ -168,8 +168,10 @@ public class MainActivity extends AppCompatActivity {
             imagePicker.origin(images); // original selected images, used in multi mode
         }
 
-        return imagePicker.limit(10) // max images can be selected (99 by default)
-                .showCamera(true) // show camera or not (true by default)
+        return imagePicker.limit(10)
+                .setShowRecordVideo(true)// max images can be selected (99 by default)
+                .showCamera(true).
+                  setShowRecordVideo(true) // show camera or not (true by default)
                 .imageDirectory("Camera")   // captured image directory name ("Camera" folder by default)
                 .imageFullDirectory(Environment.getExternalStorageDirectory().getPath()); // can be full path
     }

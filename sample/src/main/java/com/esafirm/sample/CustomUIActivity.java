@@ -84,12 +84,17 @@ public class CustomUIActivity extends AppCompatActivity {
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem menuCamera = menu.findItem(com.esafirm.imagepicker.R.id.menu_camera);
+        MenuItem menuVideoCamera = menu.findItem(com.esafirm.imagepicker.R.id.menu_video_camera);
         if (menuCamera != null) {
             if (config != null) {
                 menuCamera.setVisible(config.isShowCamera());
             }
         }
-
+        if (menuVideoCamera != null) {
+            if (config != null) {
+                menuVideoCamera.setVisible(config.isShowRecordVideo());
+            }
+        }
         MenuItem menuDone = menu.findItem(com.esafirm.imagepicker.R.id.menu_done);
         if (menuDone != null) {
             menuDone.setTitle(ConfigUtils.getDoneButtonText(this, config));
